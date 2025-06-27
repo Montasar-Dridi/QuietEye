@@ -11,20 +11,18 @@ def start_camera(index = 0):
     return cap
 
 
-def show_camera_feed(cap, window_name="Quiet Eye"):
-    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+def show_camera_feed(cap, process_fn=None, visualize=False):
     while True:
         ret, frame = cap.read()
-
         if not ret:
-            raise RuntimeError("Cannot recieve frame")
             break
 
-        cv2.imshow(window_name, frame)
+        if process_fn:
+            frame = process_fn(frame, visualize)
 
-        if cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
-            break
-        if cv2.waitKey(1) & 0xFF == ord("q"):
+        cv2.imshow("QuietEye", frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     cap.release()
