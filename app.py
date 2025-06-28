@@ -1,6 +1,5 @@
 from quieteye.core.camera import start_camera, show_camera_feed
-from quieteye.core.pipeline import face_mesh_processor, gaze_estimation_processor
-from quieteye.core.detector import detect_face_mesh
+from quieteye.core.pipeline import face_mesh_processor, gaze_estimation_processor, head_position_processor
 
 frame_count = 0
 
@@ -12,10 +11,13 @@ def run():
         global frame_count
         frame_count += 1
 
-        face_detected, landmarks_list = detect_face_mesh(frame)
+        face_detected, landmarks_list = face_mesh_processor(frame, visualize=visualize)
         if face_detected:
-            gaze_estimation_processor(landmarks_list[0], frame_count)
-        return face_mesh_processor(frame, visualize=visualize)
+            for landmarks in landmarks_list:
+                gaze_estimation_processor(landmarks, frame_count)
+                head_position_processor(frame, landmarks, frame_count)
+
+        return frame
 
     show_camera_feed(cap, process_fn=full_processor, visualize=True)
     print("Exiting Quiet Eye")
