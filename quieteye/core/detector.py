@@ -19,5 +19,26 @@ def detect_face_mesh(frame):
     else:
         return False, []
 
-    
 
+def estimate_gaze_direction(landmarks):
+    # Left eye
+    left_eye_left = landmarks.landmark[33].x
+    left_eye_right = landmarks.landmark[133].x
+    left_iris = landmarks.landmark[468].x
+
+    # Right eye
+    right_eye_left = landmarks.landmark[362].x
+    right_eye_right = landmarks.landmark[263].x
+    right_iris = landmarks.landmark[473].x
+
+    left_ratio = (left_iris - left_eye_left) / (left_eye_right - left_eye_left)
+    right_ratio = (right_iris - right_eye_left) / (right_eye_right - right_eye_left)
+
+    avg_ratio = (left_ratio + right_ratio) / 2.0
+
+    if avg_ratio < 0.35:
+        return "RIGHT"
+    elif avg_ratio > 0.65:
+        return "LEFT"
+    else:
+        return "CENTER"

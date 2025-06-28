@@ -1,7 +1,7 @@
 import cv2
 import time
 import mediapipe as mp
-from quieteye.core.detector import detect_face_mesh
+from quieteye.core.detector import detect_face_mesh, estimate_gaze_direction
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_style = mp.solutions.drawing_styles
@@ -21,3 +21,8 @@ def face_mesh_processor(frame, visualize=False):
             )
 
     return frame
+
+def gaze_estimation_processor(landmarks, frame_count):
+    if frame_count % 5 == 0:
+        gaze_direction = estimate_gaze_direction(landmarks)
+        print(f"Frame {frame_count} --- Gaze Direction {gaze_direction}")
