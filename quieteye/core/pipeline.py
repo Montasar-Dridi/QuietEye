@@ -26,9 +26,14 @@ def face_mesh_processor(frame, visualize=False):
 def gaze_estimation_processor(landmarks, frame_count):
     if frame_count % 5 == 0:
         gaze_direction = estimate_gaze_direction(landmarks)
-        print(f"[Frame {frame_count}] | Gaze Direction {gaze_direction}")
+        print(f"[Frame {frame_count}] | Gaze Direction: {gaze_direction}")
+        return gaze_direction
+    return None
+
 
 def head_position_processor(frame, landmarks, frame_count):
     if frame_count % 5 == 0:
         head_pose = estimate_head_position(frame, landmarks)
-        print(f"[Frame {frame_count}] | {head_pose['status']}")
+        print(f"[Frame {frame_count}] | Head Pose: {head_pose['status']}")
+        return head_pose
+    return None
