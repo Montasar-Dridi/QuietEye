@@ -31,4 +31,4 @@ def gaze_estimation_processor(landmarks, frame_count):
 def head_position_processor(frame, landmarks, frame_count):
     if frame_count % 5 == 0:
         head_pose = estimate_head_position(frame, landmarks)
-        print(f"[Frame {frame_count}] | Yaw: {head_pose['yaw']:.2f}, Pitch: {head_pose['pitch']:.2f}, Roll: {head_pose['roll']:.2f} → {head_pose['status']}")
+        print(f"[Frame {frame_count}] | {head_pose['status']}")

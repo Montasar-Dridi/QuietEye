@@ -44,26 +44,28 @@ def estimate_gaze_direction(landmarks):
     else:
         return "CENTER"
 
-#TODO: fix inverse output looking down --> looking up etc...
+
 def estimate_head_position(frame, landmarks):
     image_height, image_width = frame.shape[:2]
-
+    
+    # 3D model points for facial landmarks (in cm)
     model_points = np.array([
-        (0.0, 0.0, 0.0),             # Nose tip
-        (0.0, -63.6, -12.5),         # Chin
-        (-43.3, 32.7, -26.0),        # Left eye outer corner
-        (43.3, 32.7, -26.0),         # Right eye outer corner
-        (-28.9, -28.9, -24.1),       # Left mouth corner
-        (28.9, -28.9, -24.1)         # Right mouth corner
+        (0.0, 0.0, 0.0),          # Nose tip
+        (0.0, -63.6, -12.5),      # Chin
+        (-43.3, 32.7, -26.0),     # Left eye outer corner
+        (43.3, 32.7, -26.0),      # Right eye outer corner
+        (-28.9, -28.9, -24.1),    # Left mouth corner
+        (28.9, -28.9, -24.1)      # Right mouth corner
     ])
-
+    
     landmark_ids = [1, 152, 33, 263, 61, 291]
+    
     image_points = np.array([
         (landmarks.landmark[i].x * image_width,
          landmarks.landmark[i].y * image_height)
         for i in landmark_ids
     ], dtype="double")
-
+    
     focal_length = image_width
     center = (image_width / 2, image_height / 2)
     camera_matrix = np.array([
@@ -71,35 +73,53 @@ def estimate_head_position(frame, landmarks):
         [0, focal_length, center[1]],
         [0, 0, 1]
     ], dtype="double")
-
+    
     dist_coeffs = np.zeros((4, 1))
-
+    
     success, rotation_vector, translation_vector = cv2.solvePnP(
         model_points, image_points, camera_matrix, dist_coeffs
     )
-
+    
     if not success:
         return None
-
+    
     rotation_matrix, _ = cv2.Rodrigues(rotation_vector)
-
-    _, _, _, _, _, _, euler_angles = cv2.decomposeProjectionMatrix(
-        np.hstack((rotation_matrix, translation_vector))
-    )
+    
+    projection_matrix = np.hstack((rotation_matrix, translation_vector.reshape(-1, 1)))
+    
+    _, _, _, _, _, _, euler_angles = cv2.decomposeProjectionMatrix(projection_matrix)
+    
     pitch, yaw, roll = euler_angles.flatten()
+    
+    def normalize_angle(angle):
+        
+        while angle > 180:
+            angle -= 360
+        while angle < -180:
+            angle += 360
+        return angle
+    
+    pitch = normalize_angle(pitch)
+    yaw = normalize_angle(yaw)
+    roll = normalize_angle(roll)
+    
 
-    # Debug print
-    print(f"[DEBUG] Pitch: {pitch:.2f}, Yaw: {yaw:.2f}, Roll: {roll:.2f}")
-
-    if abs(yaw) > 25:
+    if abs(pitch) > 90:
+        if pitch > 0:
+            pitch = 180 - pitch
+        else:
+            pitch = -180 - pitch
+    
+    
+    if abs(yaw) > 30:  
         status = "Looking Away"
-    elif pitch < -10:
+    elif pitch > 20:   
         status = "Looking Up"
-    elif pitch > 10:
+    elif pitch < -20:  
         status = "Looking Down"
     else:
         status = "Looking Straight"
-
+    
     return {
         "yaw": yaw,
         "pitch": pitch,
