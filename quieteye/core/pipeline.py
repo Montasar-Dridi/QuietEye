@@ -1,7 +1,9 @@
-import cv2
-import time
 import mediapipe as mp
-from quieteye.core.detector import detect_face_mesh, estimate_gaze_direction, estimate_head_position
+from quieteye.core.detector import (
+    detect_face_mesh,
+    estimate_gaze_direction,
+    estimate_head_position,
+)
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_style = mp.solutions.drawing_styles
@@ -17,7 +19,7 @@ def face_mesh_processor(frame, visualize=False):
                 landmark_list=landmarks,
                 connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
                 landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing_style.get_default_face_mesh_tesselation_style()
+                connection_drawing_spec=mp_drawing_style.get_default_face_mesh_tesselation_style(),
             )
 
     return face_detected, landmarks_list

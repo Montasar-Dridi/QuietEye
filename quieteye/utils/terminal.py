@@ -19,23 +19,28 @@ _frame_data = {
     "pitch": 0.0,
     "yaw": 0.0,
     "head_status": "N/A",
-    "attention_score": 0.0
+    "attention_score": 0.0,
 }
+
 
 def update_terminal_data(frame, gaze, pitch, yaw, head_status, score):
     global _frame_data
-    _frame_data.update({
-        "frame": frame,
-        "gaze": gaze,
-        "pitch": pitch,
-        "yaw": yaw,
-        "head_status": head_status,
-        "attention_score": score
-    })
+    _frame_data.update(
+        {
+            "frame": frame,
+            "gaze": gaze,
+            "pitch": pitch,
+            "yaw": yaw,
+            "head_status": head_status,
+            "attention_score": score,
+        }
+    )
+
 
 def should_refresh_terminal():
     global _last_update_time
     return (time.time() - _last_update_time) >= 3
+
 
 def render_terminal():
     global _last_update_time
@@ -57,8 +62,9 @@ def render_terminal():
 
     return Group(
         Align.center(ascii_renderable),
-        Panel(table, title="Attention Metrics", border_style="bold blue")
+        Panel(table, title="Attention Metrics", border_style="bold blue"),
     )
+
 
 def start_terminal_display():
     global stop_display
@@ -68,6 +74,7 @@ def start_terminal_display():
             if should_refresh_terminal():
                 live.update(render_terminal())
             time.sleep(0.1)
+
 
 def stop_terminal_display():
     global stop_display
