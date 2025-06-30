@@ -18,16 +18,17 @@ def show_camera_feed(cap, process_fn=None, visualize=False):
             break
 
         if process_fn:
-            frame = process_fn(frame, visualize)
+            frame = process_fn(frame, visualize=visualize)
 
-        cv2.imshow("QuietEye", frame)
+        cv2.imshow("QuietEye Camera Feed", frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
             break
 
     cap.release()
     cv2.destroyAllWindows()
-
+    return
 
 
 

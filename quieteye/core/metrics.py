@@ -1,3 +1,5 @@
+import statistics
+
 def compute_attention_score(gaze_direction, pitch, yaw):
     gaze_weight = 0.4
     yaw_weight = 0.3
@@ -19,3 +21,29 @@ def compute_attention_score(gaze_direction, pitch, yaw):
     )
 
     return int(round(attention_score * 100))
+
+def analyze_attention(attention_log):
+    if not attention_log:
+        return {
+            "avg": 0.0, "min": (0.0, None), "max": (0.0, None),
+            "std": 0.0, "count": 0
+        }
+
+    scores = [s for _, s in attention_log]
+    timestamps = [t for t, _ in attention_log]
+
+    avg = sum(scores) / len(scores)
+    std = statistics.stdev(scores) if len(scores) > 1 else 0.0
+    min_score = min(scores)
+    max_score = max(scores)
+
+    min_time = timestamps[scores.index(min_score)]
+    max_time = timestamps[scores.index(max_score)]
+
+    return {
+        "avg": avg,
+        "std": std,
+        "min": (min_score, min_time),
+        "max": (max_score, max_time),
+        "count": len(scores)
+    }

@@ -1,15 +1,17 @@
-# terminal.py
-from rich.console import Console, Group
+# quieteye/utils/terminal.py
+from rich.console import Console
 from rich.panel import Panel
 from rich.align import Align
 from rich.live import Live
 from rich.table import Table
 from rich.text import Text
+from rich.console import Group
+
 import time
 import pyfiglet
 
 console = Console()
-
+stop_display = False
 _last_update_time = time.time()
 _frame_data = {
     "frame": 0,
@@ -53,16 +55,20 @@ def render_terminal():
     table.add_row("Head Status", _frame_data["head_status"])
     table.add_row("Attention Score", f"{_frame_data['attention_score']:.2f}")
 
-    layout = Group(
+    return Group(
         Align.center(ascii_renderable),
-        Panel(table, title="Attention Metrics", border_style="bold blue", expand=False)
+        Panel(table, title="Attention Metrics", border_style="bold blue")
     )
 
-    return layout
-
 def start_terminal_display():
+    global stop_display
+    stop_display = False
     with Live(render_terminal(), refresh_per_second=1, screen=True) as live:
-        while True:
+        while not stop_display:
             if should_refresh_terminal():
                 live.update(render_terminal())
             time.sleep(0.1)
+
+def stop_terminal_display():
+    global stop_display
+    stop_display = True
